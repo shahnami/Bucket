@@ -1,6 +1,7 @@
 #!/bin/python3
 
 import json
+import csv
 import urllib3
 import requests
 import dns.resolver
@@ -13,7 +14,7 @@ urllib3.disable_warnings()
 AWS_URL = 'https://ip-ranges.amazonaws.com/ip-ranges.json'
 
 
-def fetch_dom(*, domain: str, get_source: bool = False, output_path: str = 'output/sources/') -> Page:
+def fetch_dom(*, domain: str, get_source: bool = True, output_path: str = '/tmp/') -> Page:
     """ Fetch DOM element for domain """
     # session = HTMLSession(verify=False)
     try:
@@ -63,7 +64,7 @@ def get_aws_ranges(*, url: str = AWS_URL) -> list:
     return aws
 
 
-def parse_domain(*, domain: str, get_source: bool = False, output_path: str = 'output/sources/') -> Page:
+def parse_domain(*, domain: str, get_source: bool = True, output_path: str = '/tmp/') -> Page:
     # print(f"[-] Parsing {domain}")
     page = fetch_dom(domain=domain, get_source=get_source,
                      output_path=output_path)
@@ -73,7 +74,32 @@ def parse_domain(*, domain: str, get_source: bool = False, output_path: str = 'o
     return None
 
 
-def run(*, input_path: str, output_json: str, collections: list(), get_source: bool = False, output_path: str = 'output/sources/'):
+def export_json(*, output_path: str, collections: list):
+    print(f"[-] Exporting to: {output_path}")
+    with open(output_path, 'w') as output:
+        output.writelines(json.dumps(
+            [x.__dict__() for x in collections], indent=4, sort_keys=True))
+
+
+def export_csv(*, output_path: str, collections: list):
+    print(f"[-] Exporting to: {output_path}")
+    with open(output_path, 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile, delimiter=',',
+                            quotechar='"', quoting=csv.QUOTE_MINIMAL)
+
+        writer.writerow(['Domain', 'A-records', 'Bucket', 'Matched On'])
+        for collection in collections:
+            for page in collection.pages:
+                # Handle AWS slightly differently
+                if(collection.name == "AWS Collection"):
+                    writer.writerow([page.domain, ", ".join([str(ip) for ip in page.ip]),
+                                     collection.name, ", ".join(collection.get_match_for(page=page))])
+                else:
+                    writer.writerow([page.domain, ", ".join([str(ip) for ip in page.ip]),
+                                     collection.name, ", ".join([matched for matched in page.matched if matched in collection.keywords])])
+
+
+def process(*, input_path: str, collections: list, get_source: bool = True, output_path: str = '/tmp/') -> list:
     print(f"[-] Reading {input_path}")
 
     if get_source:
@@ -88,10 +114,7 @@ def run(*, input_path: str, output_json: str, collections: list(), get_source: b
                 list(exc.map(lambda collection: collection.validate(
                     page=page), collections))
 
-    with open(output_json, 'w') as output:
-        output.writelines(json.dumps([x.__dict__()
-                                      for x in collections], indent=4))
-
     if get_source:
-        print(f"[-] Page Sources: {output_path}")
-    print(f"[-] Completed: {output_json}")
+        print(f"[*] Page Sources: {output_path}")
+
+    return collections

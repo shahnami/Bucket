@@ -5,6 +5,7 @@ class InputCollection(Collection):
     """ Collection class """
 
     def __init__(self):
+        self.name: str = 'Input Collection'
         self.pages = list()
         self.check = {'domain': True, 'element': True, }
         self.keywords = ['input', 'form']

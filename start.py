@@ -1,5 +1,5 @@
 #!/bin/python3
-from bucket.utils import get_aws_ranges, run
+from bucket.utils import get_aws_ranges, process, export_csv, export_json
 from bucket.collections import Collection, NoneCollection, EnvironmentCollection, PaymentCollection, VPNCollection, SocialCollection, AWSCollection, LoginCollection, InputCollection
 
 if __name__ == '__main__':
@@ -18,5 +18,8 @@ if __name__ == '__main__':
     collections.append(LoginCollection())
     collections.append(InputCollection())
 
-    run(input_path='targets.txt', output_json='targets.json',
-        collections=collections, get_source=True, output_path='output/sources/')
+    processed_collections = process(input_path='targets.txt', collections=collections,
+                                    get_source=True, output_path='output/sources/')
+
+    export_json(output_path='output.json', collections=processed_collections)
+    export_csv(output_path='output.csv', collections=processed_collections)
