@@ -98,18 +98,19 @@ def export_csv(*, output_path: str, collections: list):
 
 def process(*, input_path: str, collections: list, get_source: bool = True, output_path: str = '/tmp/') -> list:
     print(f"[-] Reading {input_path}")
-
     if get_source:
         print(f"[-] Downloading Page Source in: {output_path}")
 
     with open(input_path) as targets:
-        for target in targets.readlines():
-            domain = target.strip()
-            with ThreadPoolExecutor(max_workers=10) as exc:
-                future = exc.submit(parse_domain, domain=domain,
-                                    get_source=get_source, output_path=output_path)
-                list(exc.map(lambda collection: collection.validate(
-                    page=future.result()), collections))
+        domains = [target.strip() for target in targets.readlines()]
+
+    with ThreadPoolExecutor(max_workers=10) as exc:
+        pages = list(exc.map(lambda domain: parse_domain(
+            domain=domain, get_source=get_source, output_path=output_path), domains))
+
+        for collection in collections:
+            for page in pages:
+                collection.validate(page=page)
 
     if get_source:
         print(f"[*] Page Sources: {output_path}")
