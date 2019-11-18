@@ -11,7 +11,7 @@ class Page:
         self.matched: [any] = []
         self.ip: [IPAddress] = []
 
-    def add_match(self, keyword: str) -> str:
+    def add_match(self, keyword: str):
         if(keyword not in self.matched):
             self.matched.append(keyword)
 
