@@ -10,6 +10,7 @@ from netaddr.ip import IPAddress, IPNetwork
 from .page import Page
 
 urllib3.disable_warnings()
+requests.adapters.DEFAULT_RETRIES = 1
 
 AWS_URL = 'https://ip-ranges.amazonaws.com/ip-ranges.json'
 
@@ -24,16 +25,12 @@ def fetch_dom(*, domain: str, get_source: bool = True, output_path: str = '/tmp/
             new_domain = f"https://{domain}"
 
         try:
-            # r = session.get(new_domain)
             request = requests.get(
-                new_domain, verify=False, allow_redirects=True)
+                new_domain, verify=False, allow_redirects=True, timeout=5)
         except:
             new_domain = f"http://{domain}"
-            # r = session.get(new_domain)
             request = requests.get(
-                new_domain, verify=False, allow_redirects=True)
-
-            # r.html.render()
+                new_domain, verify=False, allow_redirects=True, timeout=5)
 
         if(request.status_code >= 200 and request.status_code < 400):
             if(get_source):
@@ -108,11 +105,11 @@ def process(*, input_path: str, collections: list, get_source: bool = True, outp
     with open(input_path) as targets:
         for target in targets.readlines():
             domain = target.strip()
-            page = parse_domain(
-                domain=domain, get_source=get_source, output_path=output_path)
-            with ThreadPoolExecutor(max_workers=5) as exc:
+            with ThreadPoolExecutor(max_workers=10) as exc:
+                future = exc.submit(parse_domain, domain=domain,
+                                    get_source=get_source, output_path=output_path)
                 list(exc.map(lambda collection: collection.validate(
-                    page=page), collections))
+                    page=future.result()), collections))
 
     if get_source:
         print(f"[*] Page Sources: {output_path}")
