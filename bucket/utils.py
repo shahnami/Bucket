@@ -38,7 +38,15 @@ def fetch_dom(*, domain: str, get_source: bool = True, output_path: str = '/tmp/
                     file.writelines(request.content.decode().lower())
             return Page(domain=domain, element=request.content.decode().lower())
         elif(request.status_code == 401):
-            return Page(domain=domain, element='login')
+            return Page(domain=domain, element='login, 4xx-client-error')
+        elif(request.status_code == 402):
+            return Page(domain=domain, element='payment, 4xx-client-error')
+        elif(request.status_code == 404):
+            return Page(domain=domain, element='404-page-not-found')
+        elif(request.status_code >= 400 and request.status_code < 500):
+            return Page(domain=domain, element='4xx-client-error')
+        elif(request.status_code >= 500):
+            return Page(domain=domain, element='5xx-server-error')
         else:
             print(f"[x] {domain} returned status code: {request.status_code}")
             return Page(domain=domain, element='none')
