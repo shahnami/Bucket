@@ -15,7 +15,7 @@ requests.adapters.DEFAULT_RETRIES = 1
 AWS_URL = 'https://ip-ranges.amazonaws.com/ip-ranges.json'
 
 
-def fetch_dom(*, domain: str, get_source: bool = True, output_path: str = '/tmp/') -> Page:
+def fetch_dom(*, domain: str, get_source: bool, output_path: str) -> Page:
     """ Fetch DOM element for domain """
     # session = HTMLSession(verify=False)
     try:
@@ -69,7 +69,7 @@ def get_aws_ranges(*, url: str = AWS_URL) -> list:
     return aws
 
 
-def parse_domain(*, domain: str, get_source: bool = True, output_path: str = '/tmp/') -> Page:
+def parse_domain(*, domain: str, get_source: bool, output_path: str) -> Page:
     # print(f"[-] Parsing {domain}")
     page = fetch_dom(domain=domain, get_source=get_source,
                      output_path=output_path)

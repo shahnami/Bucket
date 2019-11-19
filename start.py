@@ -21,5 +21,7 @@ if __name__ == '__main__':
     processed_collections = process(input_path='targets.txt', collections=collections,
                                     get_source=True, output_path='./output/sources/')
 
-    export_json(output_path='output.json', collections=processed_collections)
-    export_csv(output_path='output.csv', collections=processed_collections)
+    export_json(output_path='./output/output.json',
+                collections=processed_collections)
+    export_csv(output_path='./outut/output.csv',
+               collections=processed_collections)
