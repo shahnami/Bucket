@@ -9,7 +9,7 @@ class AWSCollection(Collection):
     def __init__(self):
         self.name: str = 'AWS Collection'
         self.pages = list()
-        self.check = {'domain': False, 'element': False, 'status': False}
+        self.check = {'domain': False, 'content': False, 'status': False}
         self.keywords = list()
 
     def __dict__(self) -> dict:
@@ -40,6 +40,6 @@ class AWSCollection(Collection):
         for keyword in self.keywords:
             for ip in page.ip:
                 if ip in keyword:
-                    page.add_match(ip.format())
+                    page.add_match(keyword=ip.format())
                     self.pages.append(page)
                     self.pages = list(set(self.pages))

@@ -2,3 +2,6 @@ requests
 urllib3
 dnspython
 netaddr
+bs4
+tldextract
+python-Levenshtein

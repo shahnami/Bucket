@@ -7,3 +7,7 @@ from .vpn import VPNCollection
 from .social import SocialCollection
 from .environment import EnvironmentCollection
 from .login import LoginCollection
+from .production import ProductionCollection
+from .staging import StagingCollection
+from .client import ClientCollection
+from .brochure import BrochureCollection

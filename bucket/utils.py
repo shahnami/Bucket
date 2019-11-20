@@ -4,6 +4,8 @@ import json
 import csv
 import urllib3
 import requests
+import tldextract
+import hashlib
 import dns.resolver
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from netaddr.ip import IPAddress, IPNetwork
@@ -13,15 +15,16 @@ urllib3.disable_warnings()
 requests.adapters.DEFAULT_RETRIES = 2
 
 AWS_URL = 'https://ip-ranges.amazonaws.com/ip-ranges.json'
+ALL_DOMAINS = list()
 
 
 def fetch_dom(*, domain: str, get_source: bool, output_path: str) -> Page:
     """ Fetch DOM element for domain """
-    # session = HTMLSession(verify=False)
     try:
         new_domain = domain
+        smhash = '-'
         header = '-'
-        redirect_location = '-'
+        redirect = {"location": "-", "in_scope": False}
         headers = {
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
             "Accept-Encoding": "gzip, deflate, br",
@@ -34,42 +37,79 @@ def fetch_dom(*, domain: str, get_source: bool, output_path: str) -> Page:
 
         try:
             request = requests.get(
-                new_domain, verify=False, allow_redirects=False, timeout=10, headers=headers)
+                new_domain, verify=False, allow_redirects=True, timeout=10, headers=headers)
         except:
             new_domain = f"http://{domain}"
             request = requests.get(
-                new_domain, verify=False, allow_redirects=False, timeout=10, headers=headers)
+                new_domain, verify=False, allow_redirects=True, timeout=10, headers=headers)
 
+        # Fetch sitemap.xml for dupe checking
+        if(len(request.history) > 1):
+            smhash = get_sitemap_hash(domain=request.history[-1].url)
+        else:
+            smhash = get_sitemap_hash(domain=new_domain)
+
+            # Check if headers have 'Server' information
         if 'Server' in request.headers:
             header = request.headers['Server']
 
-        if 'Location' in request.headers:
-            redirect_location = request.headers['Location']
+        # Check if request is redirected
+        if(len(request.history) > 1):
+            # TODO: What if there are multiple redirects?
+            old_headers = request.history[0].headers
+            if 'Location' in old_headers:
+                redirect["location"] = old_headers['Location']
+                redirect["in_scope"] = is_redirect_in_scope(
+                    location=old_headers['Location'])
+
+                if not is_redirect_in_scope(location=old_headers['Location']):
+                    return Page(domain=domain, status=request.history[0].status_code, header=header, smhash=smhash, redirect=redirect, content='out-of-scope, 3xx-redirect-response')
 
         if(request.status_code >= 200 and request.status_code < 300):
             if(get_source):
                 with open(f"{output_path}{domain.replace('/', '').replace(':', '')}.txt", 'w') as file:
-                    file.writelines(request.content.decode().lower())
-            return Page(domain=domain, status=request.status_code, header=header, redirected=redirect_location, element=request.content.decode().lower())
+                    file.writelines(request.content.decode('utf-8').lower())
+            return Page(domain=domain, status=request.status_code, header=header, smhash=smhash, redirect=redirect, content=request.content.decode().lower())
         elif(request.status_code >= 300 and request.status_code < 400):
-            return Page(domain=domain, status=request.status_code, header=header, redirected=redirect_location, element='3xx-redirect-response')
+            return Page(domain=domain, status=request.status_code, header=header, smhash=smhash, redirect=redirect, content='3xx-redirect-response')
         elif(request.status_code == 401):
-            return Page(domain=domain, status=request.status_code, header=header, redirected=redirect_location, element='login, 4xx-client-response')
+            return Page(domain=domain, status=request.status_code, header=header, smhash=smhash, redirect=redirect, content='login, 4xx-client-response')
         elif(request.status_code == 402):
-            return Page(domain=domain, status=request.status_code, header=header, redirected=redirect_location, element='payment, 4xx-client-response')
+            return Page(domain=domain, status=request.status_code, header=header, smhash=smhash, redirect=redirect, content='payment, 4xx-client-response')
         elif(request.status_code == 404):
-            return Page(domain=domain, status=request.status_code, header=header, redirected=redirect_location, element='404-page-not-found')
+            return Page(domain=domain, status=request.status_code, header=header, smhash=smhash, redirect=redirect, content='404-page-not-found')
         elif(request.status_code >= 400 and request.status_code < 500):
-            return Page(domain=domain, status=request.status_code, header=header, redirected=redirect_location, element='4xx-client-response')
+            return Page(domain=domain, status=request.status_code, header=header, smhash=smhash, redirect=redirect, content='4xx-client-response')
         elif(request.status_code >= 500):
-            return Page(domain=domain, status=request.status_code, header=header, redirected=redirect_location, element='5xx-server-response')
+            return Page(domain=domain, status=request.status_code, header=header, smhash=smhash, redirect=redirect, content='5xx-server-response')
         else:
             print(f"[x] {domain} returned status code: {request.status_code}")
-            return Page(domain=domain, status=request.status_code, header=header, redirected=redirect_location, element='unhandled-status-code')
+            return Page(domain=domain, status=request.status_code, header=header, smhash=smhash, redirect=redirect, content='unhandled-status-code')
 
     except Exception as e:
         print(f"[x] {domain} returned error: {e}")
-        return Page(domain=domain, status=-1, header=header, redirected=redirect_location, element='exception-thrown')
+        return Page(domain=domain, status=-1, header=header, smhash=smhash, redirect=redirect, content='exception-thrown')
+
+
+def get_sitemap_hash(*, domain: str) -> str:
+    try:
+        ext = tldextract.extract(domain)
+        request = requests.get(
+            f"https://{ext.registered_domain}/sitemap.xml", verify=False, allow_redirects=False, timeout=10)
+
+        hash = hashlib.sha256(request.content).hexdigest()
+        return hash
+    except:
+        return "-"
+
+
+def is_redirect_in_scope(*, location: str) -> bool:
+    redirect_domain = tldextract.extract(location)
+    for domain in ALL_DOMAINS:
+        ext = tldextract.extract(domain)
+        if redirect_domain.registered_domain == ext.registered_domain:
+            return True
+    return False
 
 
 def get_aws_ranges(*, url: str = AWS_URL) -> list:
@@ -86,9 +126,9 @@ def get_aws_ranges(*, url: str = AWS_URL) -> list:
 
 
 def parse_domain(*, domain: str, get_source: bool, output_path: str) -> Page:
-    # print(f"[-] Parsing {domain}")
     page = fetch_dom(domain=domain, get_source=get_source,
                      output_path=output_path)
+
     if(page):
         page.set_domain_dns()
         return page
@@ -108,26 +148,30 @@ def export_csv(*, output_path: str, collections: list):
         writer = csv.writer(csvfile, delimiter=',',
                             quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
-        writer.writerow(['Domain', 'A-records', 'Server',
-                         'Status', 'Redirected To', 'Bucket', 'Matched On'])
+        writer.writerow(['Domain', 'A-records', 'Server', 'Title',
+                         'Status', 'Redirected To', 'Bucket', 'Matched On', 'Is Duplicate'])
         for collection in collections:
             for page in collection.pages:
-                # Handle AWS slightly differently
+                # Handle AWS slightly differently due to IP matching rather than strings
                 if(collection.name == "AWS Collection"):
-                    writer.writerow([page.domain, ", ".join([str(ip) for ip in page.ip]), page.header, page.status, page.redirected,
-                                     collection.name, ", ".join(collection.get_match_for(page=page))])
+                    writer.writerow([page.domain, ", ".join([str(ip) for ip in page.ip]), page.header, page.title, page.status, page.redirect['location'],
+                                     collection.name, ", ".join(collection.get_match_for(page=page)), page.is_dupe])
                 else:
-                    writer.writerow([page.domain, ", ".join([str(ip) for ip in page.ip]), page.header, page.status, page.redirected,
-                                     collection.name, ", ".join([matched for matched in page.matched if matched in collection.keywords])])
+                    writer.writerow([page.domain, ", ".join([str(ip) for ip in page.ip]), page.header, page.title, page.status, page.redirect['location'],
+                                     collection.name, ", ".join([matched for matched in page.matched if matched in collection.keywords]), page.is_dupe])
 
 
 def process(*, input_path: str, collections: list, get_source: bool = True, output_path: str = '/tmp/') -> list:
     print(f"[-] Reading {input_path}")
+
     if get_source:
         print(f"[-] Downloading Page Source in: {output_path}")
 
     with open(input_path) as targets:
         domains = [target.strip() for target in targets.readlines()]
+
+    global ALL_DOMAINS
+    ALL_DOMAINS = domains
 
     with ThreadPoolExecutor(max_workers=50) as exc:
         pages = list(exc.map(lambda domain: parse_domain(
@@ -136,6 +180,8 @@ def process(*, input_path: str, collections: list, get_source: bool = True, outp
     for collection in collections:
         for page in pages:
             collection.validate(page=page)
+            # TODO: Dedupe needs extra sanity checking
+            collection.dedupe(page=page)
 
     if get_source:
         print(f"[*] Page Sources: {output_path}")
