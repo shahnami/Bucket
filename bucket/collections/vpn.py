@@ -7,5 +7,5 @@ class VPNCollection(Collection):
     def __init__(self):
         self.name: str = 'VPN Collection'
         self.pages = list()
-        self.check = {'domain': True, 'element': True}
+        self.check = {'domain': True, 'element': True, 'status': False}
         self.keywords = ['vpn', 'ssl']

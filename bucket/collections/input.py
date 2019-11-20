@@ -7,5 +7,5 @@ class InputCollection(Collection):
     def __init__(self):
         self.name: str = 'Input Collection'
         self.pages = list()
-        self.check = {'domain': True, 'element': True, }
+        self.check = {'domain': True, 'element': True, 'status': False}
         self.keywords = ['input', 'form']

@@ -19,9 +19,9 @@ if __name__ == '__main__':
     collections.append(InputCollection())
 
     processed_collections = process(input_path='targets.txt', collections=collections,
-                                    get_source=True, output_path='./output/sources/')
+                                    get_source=False, output_path='./output/sources/')
 
     export_json(output_path='./output/output.json',
                 collections=processed_collections)
-    export_csv(output_path='./outut/output.csv',
+    export_csv(output_path='./output/output.csv',
                collections=processed_collections)

@@ -9,7 +9,7 @@ class AWSCollection(Collection):
     def __init__(self):
         self.name: str = 'AWS Collection'
         self.pages = list()
-        self.check = {'domain': False, 'element': False}
+        self.check = {'domain': False, 'element': False, 'status': False}
         self.keywords = list()
 
     def __dict__(self) -> dict:
