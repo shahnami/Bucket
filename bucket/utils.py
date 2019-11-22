@@ -152,13 +152,15 @@ def export_csv(*, output_path: str, collections: list):
                          'Status', 'Redirected To', 'Bucket', 'Matched On', 'Is Duplicate'])
         for collection in collections:
             for page in collection.pages:
-                # Handle AWS slightly differently due to IP matching rather than strings
-                if(collection.name == "AWS Collection"):
-                    writer.writerow([page.domain, ", ".join([str(ip) for ip in page.ip]), page.header, page.title, page.status, page.redirect['location'],
-                                     collection.name, ", ".join(collection.get_match_for(page=page)), page.is_dupe])
-                else:
-                    writer.writerow([page.domain, ", ".join([str(ip) for ip in page.ip]), page.header, page.title, page.status, page.redirect['location'],
-                                     collection.name, ", ".join([matched for matched in page.matched if matched in collection.keywords]), page.is_dupe])
+                winner, _ = page.get_top_matched()
+                if(collection.name == winner):
+                    # Handle AWS slightly differently due to IP matching rather than strings
+                    if(collection.name == "AWS Collection"):
+                        writer.writerow([page.domain, ", ".join([str(ip) for ip in page.ip]), page.header, page.title, page.status, page.redirect['location'],
+                                         collection.name, ", ".join(collection.get_match_for(page=page)), page.is_dupe])
+                    else:
+                        writer.writerow([page.domain, ", ".join([str(ip) for ip in page.ip]), page.header, page.title, page.status, page.redirect['location'],
+                                         collection.name, ", ".join([matched for matched in page.matched[collection.name] if matched in collection.keywords]), page.is_dupe])
 
 
 def process(*, input_path: str, collections: list, get_source: bool = True, output_path: str = '/tmp/') -> list:

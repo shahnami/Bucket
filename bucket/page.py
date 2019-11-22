@@ -15,8 +15,8 @@ class Page:
         self.title: str = '-'
         self.is_dupe: bool = False
         self.sitemap_hash: str = smhash
-        self.matched: [any] = []
-        self.ip: [IPAddress] = []
+        self.matched: dict = dict()
+        self.ip: [IPAddress] = list()
         self.fetch_title()
 
     def fetch_title(self):
@@ -32,9 +32,12 @@ class Page:
     def set_dupe(self, *, is_dupe: bool):
         self.is_dupe = is_dupe
 
-    def add_match(self, *, keyword: str):
-        if(keyword not in self.matched):
-            self.matched.append(keyword)
+    def add_match(self, *, collection: str, keyword: str):
+        if collection not in self.matched:
+            self.matched[collection] = list()
+
+        if keyword not in self.matched[collection]:
+            self.matched[collection].append(keyword)
 
     def check_in(self, *, domain: bool, content: bool, status: bool) -> str:
         if(domain and content and status):
@@ -68,6 +71,15 @@ class Page:
             # the resolver is not answering so dns resolutions remain empty
             pass
         self.ip = dns_records
+
+    def get_top_matched(self) -> (str, int):
+        high_score: int = 0
+        winner: str = None
+        for key, value in self.matched.items():
+            if (len(value) - 1) > high_score:
+                high_score = len(value) - 1
+                winner = key
+        return winner, high_score
 
     def __repr__(self):
         return f"{self.domain}"

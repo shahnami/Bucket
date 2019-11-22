@@ -23,7 +23,10 @@ class AWSCollection(Collection):
 
     def get_match_for(self, *, page: Page) -> list:
         matches = list()
-        for match in page.matched:
+        if self.name not in page.matched:
+            page.matched[self.name] = list()
+
+        for match in page.matched[self.name]:
             for keyword in self.keywords:
                 try:
                     if IPAddress(match) in keyword:
@@ -40,6 +43,6 @@ class AWSCollection(Collection):
         for keyword in self.keywords:
             for ip in page.ip:
                 if ip in keyword:
-                    page.add_match(keyword=ip.format())
+                    page.add_match(collection=self.name, keyword=ip.format())
                     self.pages.append(page)
                     self.pages = list(set(self.pages))
