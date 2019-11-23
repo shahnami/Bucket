@@ -11,3 +11,4 @@ from .production import ProductionCollection
 from .staging import StagingCollection
 from .client import ClientCollection
 from .brochure import BrochureCollection
+from .auth import AuthCollection

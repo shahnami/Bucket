@@ -153,7 +153,7 @@ def export_csv(*, output_path: str, collections: list):
         for collection in collections:
             for page in collection.pages:
                 winner, _ = page.get_top_matched()
-                if(collection.name == winner):
+                if(collection.name == winner.name):
                     # Handle AWS slightly differently due to IP matching rather than strings
                     if(collection.name == "AWS Collection"):
                         writer.writerow([page.domain, ", ".join([str(ip) for ip in page.ip]), page.header, page.title, page.status, page.redirect['location'],

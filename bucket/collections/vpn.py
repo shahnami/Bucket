@@ -5,7 +5,8 @@ class VPNCollection(Collection):
     """ Collection class """
 
     def __init__(self):
-        self.name: str = 'VPN Collection'
+        self.name = 'VPN Collection'
         self.pages = list()
         self.check = {'domain': True, 'content': True, 'status': False}
-        self.keywords = ['vpn', 'ssl']
+        self.keywords = ['cscoe', 'netscaler', 'citrix gateway']
+        self.multiplier = 100

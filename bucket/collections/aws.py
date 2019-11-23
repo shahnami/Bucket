@@ -7,7 +7,7 @@ class AWSCollection(Collection):
     """ Collection class """
 
     def __init__(self):
-        self.name: str = 'AWS Collection'
+        self.name = 'AWS Collection'
         self.pages = list()
         self.check = {'domain': False, 'content': False, 'status': False}
         self.keywords = list()

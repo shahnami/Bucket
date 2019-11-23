@@ -6,7 +6,7 @@ class BrochureCollection(Collection):
     """ Collection class """
 
     def __init__(self):
-        self.name: str = 'Brochure Collection'
+        self.name = 'Brochure Collection'
         self.pages = list()
         self.check = {'domain': True, 'content': True, 'status': False}
         self.keywords = ['input', 'form', 'contact', 'logon', 'signup', 'signin', 'login',

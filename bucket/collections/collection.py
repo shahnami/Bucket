@@ -10,6 +10,7 @@ class Collection:
         self.check: dict = {'domain': True, 'content': True, 'status': False}
         self.keywords: [any] = list()
         self.pages: [Page] = list()
+        self.multiplier: int = 1
 
     def __dict__(self) -> dict:
         return {

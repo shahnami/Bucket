@@ -11,16 +11,15 @@ if __name__ == '__main__':
     # collections.append(aws_collection)
 
     collections.append(NoneCollection())
-    collections.append(ProductionCollection())
+    # collections.append(ProductionCollection())
     collections.append(StagingCollection())
     collections.append(ClientCollection())
     collections.append(BrochureCollection())
     collections.append(VPNCollection())
+    collections.append(AuthCollection())
 
-    processed_collections = process(input_path='targets.txt', collections=collections,
-                                    get_source=False, output_path='./output/sources/')
+    processed_collections = process(
+        input_path='targets.txt', collections=collections, get_source=False, output_path='./output/sources/')
 
-    export_json(output_path='./output/output.json',
-                collections=processed_collections)
     export_csv(output_path='./output/output.csv',
                collections=processed_collections)
