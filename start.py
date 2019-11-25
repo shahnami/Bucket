@@ -13,8 +13,7 @@ if __name__ == '__main__':
     collections.append(VPNCollection())
     collections.append(AuthCollection())
 
-    processed_collections = process(
-        input_path='targets.txt', collections=collections, get_source=False, output_path='./output/sources/')
+    _, pages = process(input_path='targets.txt', collections=collections,
+                       get_source=False, output_path='./output/sources/')
 
-    export_csv(output_path='./output/output.csv',
-               collections=processed_collections)
+    export_csv(output_path='./output/output.csv', pages=pages)

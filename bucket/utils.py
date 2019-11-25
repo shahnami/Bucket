@@ -156,7 +156,7 @@ def export_json(*, output_path: str, collections: list):
             [x.__dict__() for x in collections], indent=4, sort_keys=True))
 
 
-def export_csv(*, output_path: str, collections: list):
+def export_csv(*, output_path: str, pages: list):
     print(f"[-] Exporting to: {output_path}")
     with open(output_path, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile, delimiter=',',
@@ -164,25 +164,23 @@ def export_csv(*, output_path: str, collections: list):
 
         writer.writerow(['Domain', 'A-records', 'Server', 'Title',
                          'Status', 'Redirected To', 'Bucket', 'Matched On', 'Valid SSL'])
-        for collection in collections:
-            for page in collection.pages:
-                winner, _ = page.get_top_matched()
 
-                if winner:
-                    if(collection.name == winner.name):
-                        # Handle AWS slightly differently due to IP matching rather than strings
-                        if(collection.name == "AWS Collection"):
-                            writer.writerow([page.domain, ", ".join([str(ip) for ip in page.ip]), page.header, page.title, page.status, page.redirect['location'],
-                                             collection.name, ", ".join(collection.get_match_for(page=page)), page.ssl['valid']])
-                        else:
-                            writer.writerow([page.domain, ", ".join([str(ip) for ip in page.ip]), page.header, page.title, page.status, page.redirect['location'],
-                                             collection.name, ", ".join([matched for matched in page.matched[collection] if matched in collection.keywords]), page.ssl['valid']])
+        for page in pages:
+            winner, _ = page.get_top_matched()
+            if winner:
+                # Handle AWS slightly differently due to IP matching rather than strings
+                if(winner.name == "AWS Collection"):
+                    writer.writerow([page.domain, ", ".join([str(ip) for ip in page.ip]), page.header, page.title, page.status,
+                                     page.redirect['location'], winner.name, ", ".join(winner.get_match_for(page=page)), page.ssl['valid']])
                 else:
-                    writer.writerow([page.domain, ", ".join([str(ip) for ip in page.ip]), page.header, page.title,
-                                     page.status, page.redirect['location'], "NOMATCH-DEBUG", "-", page.ssl['valid']])
+                    writer.writerow([page.domain, ", ".join([str(ip) for ip in page.ip]), page.header, page.title, page.status, page.redirect['location'],
+                                     winner.name, ", ".join([matched for matched in page.matched[winner] if matched in winner.keywords]), page.ssl['valid']])
+            else:
+                writer.writerow([page.domain, ", ".join([str(ip) for ip in page.ip]), page.header, page.title,
+                                 page.status, page.redirect['location'], "NOMATCH-DEBUG", "-", page.ssl['valid']])
 
 
-def process(*, input_path: str, collections: list, get_source: bool = True, output_path: str = '/tmp/') -> list:
+def process(*, input_path: str, collections: list, get_source: bool = True, output_path: str = '/tmp/') -> (list, list):
     print(f"[-] Reading {input_path}")
 
     if get_source:
@@ -207,4 +205,4 @@ def process(*, input_path: str, collections: list, get_source: bool = True, outp
     if get_source:
         print(f"[*] Page Sources: {output_path}")
 
-    return collections
+    return collections, pages
