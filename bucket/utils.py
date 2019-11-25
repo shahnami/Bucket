@@ -75,6 +75,9 @@ def fetch_dom(*, domain: str, get_source: bool, output_path: str) -> Page:
                 redirect["in_scope"] = is_redirect_in_scope(
                     location=old_headers['Location'])
 
+                # TODO:
+                # Check if location starts with '/...' - some outliers have a local redirect
+                # Check how subdomains react to this?
                 # if not is_redirect_in_scope(location=old_headers['Location']):
                 if not ("//"+domain in old_headers['Location'] or "//www"+domain in old_headers['Location']):
                     return Page(domain=domain, status=request.history[0].status_code, header=header, smhash=smhash, redirect=redirect, ssl=ssl, content='out-of-scope, 3xx-redirect-response')
