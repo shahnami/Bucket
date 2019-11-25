@@ -9,3 +9,4 @@ class ProductionCollection(Collection):
         self.pages = list()
         self.check = {'domain': True, 'content': False, 'status': False}
         self.keywords = ['prod', 'production']
+        self.multiplier = 1

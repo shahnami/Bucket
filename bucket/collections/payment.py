@@ -9,3 +9,4 @@ class PaymentCollection(Collection):
         self.pages = list()
         self.check = {'domain': True, 'content': True, 'status': False}
         self.keywords = ['payment', 'banking', 'credit', 'debit']
+        self.multiplier = 1

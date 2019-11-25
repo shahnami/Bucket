@@ -10,3 +10,4 @@ class LoginCollection(Collection):
         self.check = {'domain': True, 'content': True, 'status': False}
         self.keywords = ['logon', 'signup', 'signin', 'login',
                          'register', 'auth', 'passw', 'username', 'email']
+        self.multiplier = 1

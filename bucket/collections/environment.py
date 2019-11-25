@@ -9,3 +9,4 @@ class EnvironmentCollection(Collection):
         self.pages = list()
         self.check = {'domain': True, 'content': False, 'status': False}
         self.keywords = ['api', 'uat', 'dev', 'sit', 'test', 'prod', 'staging']
+        self.multiplier = 1

@@ -6,12 +6,7 @@ if __name__ == '__main__':
 
     collections: [Collection] = list()
 
-    # aws_collection = AWSCollection()
-    # aws_collection.set_keywords(ranges=get_aws_ranges())
-    # collections.append(aws_collection)
-
     collections.append(NoneCollection())
-    # collections.append(ProductionCollection())
     collections.append(StagingCollection())
     collections.append(ClientCollection())
     collections.append(BrochureCollection())

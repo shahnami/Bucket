@@ -2,7 +2,11 @@ from .collection import Collection
 
 
 class VPNCollection(Collection):
-    """ Collection class """
+    """ 
+        Remote Collection class
+
+        Sites which suggest they are remote access solutions such as Cisco VPN endpoints and Citrix.
+    """
 
     def __init__(self):
         self.name = 'VPN Collection'

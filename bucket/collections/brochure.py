@@ -11,6 +11,7 @@ class BrochureCollection(Collection):
         self.check = {'domain': True, 'content': True, 'status': False}
         self.keywords = ['input', 'form', 'contact', 'logon', 'signup', 'signin', 'login',
                          'register', 'auth', 'passw', 'username', 'email', 'vpn', 'ssl']
+        self.multiplier = 1
 
     def validate(self, *, page: Page):
         contains_keywords = False

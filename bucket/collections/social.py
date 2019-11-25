@@ -10,3 +10,4 @@ class SocialCollection(Collection):
         self.check = {'domain': True, 'content': True, 'status': False}
         self.keywords = ['facebook', 'twitter',
                          'linkedin', 'reddit', 'instagram']
+        self.multiplier = 1

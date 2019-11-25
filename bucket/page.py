@@ -1,7 +1,7 @@
 from netaddr import IPAddress, IPNetwork
 from bs4 import BeautifulSoup
 import dns.resolver
-from .collections import Collection
+# from .collections import Collection
 
 
 class Page:
@@ -34,7 +34,8 @@ class Page:
     def set_dupe(self, *, is_dupe: bool):
         self.is_dupe = is_dupe
 
-    def add_match(self, *, collection: Collection, keyword: str):
+    #  -> Cirtcular dependency with Collection type
+    def add_match(self, *, collection: object, keyword: str):
         if collection not in self.matched:
             self.matched[collection] = list()
 
@@ -74,9 +75,9 @@ class Page:
             pass
         self.ip = dns_records
 
-    def get_top_matched(self) -> (str, int):
+    def get_top_matched(self) -> (object, int):
         high_score: int = 0
-        winner: str = None
+        winner: object = None
         for key, value in self.matched.items():
             if ((len(value) - 1) * key.multiplier) > high_score:
                 high_score = (len(value) - 1) * key.multiplier

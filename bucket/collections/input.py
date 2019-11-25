@@ -9,3 +9,4 @@ class InputCollection(Collection):
         self.pages = list()
         self.check = {'domain': True, 'content': True, 'status': False}
         self.keywords = ['input', 'form']
+        self.multiplier = 1

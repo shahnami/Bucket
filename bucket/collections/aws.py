@@ -11,6 +11,7 @@ class AWSCollection(Collection):
         self.pages = list()
         self.check = {'domain': False, 'content': False, 'status': False}
         self.keywords = list()
+        self.multiplier = 1
 
     def __dict__(self) -> dict:
         return {
@@ -43,6 +44,6 @@ class AWSCollection(Collection):
         for keyword in self.keywords:
             for ip in page.ip:
                 if ip in keyword:
-                    page.add_match(collection=self.name, keyword=ip.format())
+                    page.add_match(collection=self, keyword=ip.format())
                     self.pages.append(page)
                     self.pages = list(set(self.pages))

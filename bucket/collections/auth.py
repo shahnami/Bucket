@@ -2,7 +2,13 @@ from .collection import Collection
 
 
 class AuthCollection(Collection):
-    """ Collection class """
+    """ 
+        Basic Authentication Collection class
+
+        Requires username/password via Basic Auth – typical of non-production assets.
+        Note as testing is unauthenticated, testing of the application would not be possible 
+        in these instances but common checks against the webserver and misconfigurations would.
+    """
 
     def __init__(self):
         self.name = 'Auth Collection'

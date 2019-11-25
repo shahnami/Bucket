@@ -25,6 +25,7 @@ def fetch_dom(*, domain: str, get_source: bool, output_path: str) -> Page:
         smhash = '-'
         header = '-'
         redirect = {"location": "-", "in_scope": False}
+        ssl = {"ssl": False, "valid": False}
         headers = {
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
             "Accept-Encoding": "gzip, deflate, br",
@@ -36,12 +37,24 @@ def fetch_dom(*, domain: str, get_source: bool, output_path: str) -> Page:
             new_domain = f"https://{domain}"
 
         try:
-            request = requests.get(
-                new_domain, verify=False, allow_redirects=True, timeout=10, headers=headers)
+            try:
+                request = requests.get(
+                    new_domain, verify=True, allow_redirects=True, timeout=10, headers=headers)
+                ssl['ssl'] = True
+                ssl['valid'] = True
+            except:
+                request = requests.get(
+                    new_domain, verify=False, allow_redirects=True, timeout=10, headers=headers)
+                ssl['ssl'] = True
+                ssl['valid'] = False
         except:
-            new_domain = f"http://{domain}"
-            request = requests.get(
-                new_domain, verify=False, allow_redirects=True, timeout=10, headers=headers)
+            try:
+                new_domain = f"http://{domain}"
+                request = requests.get(
+                    new_domain, verify=False, allow_redirects=True, timeout=10, headers=headers)
+            except:
+                print(f"[x] Error connecting to: {domain}")
+                return Page(domain=domain, status=-1, header=header, smhash=smhash, redirect=redirect, ssl=ssl, content='error-connecting')
 
         # Fetch sitemap.xml for dupe checking
         if(len(request.history) > 1):
@@ -62,33 +75,34 @@ def fetch_dom(*, domain: str, get_source: bool, output_path: str) -> Page:
                 redirect["in_scope"] = is_redirect_in_scope(
                     location=old_headers['Location'])
 
-                if not is_redirect_in_scope(location=old_headers['Location']):
-                    return Page(domain=domain, status=request.history[0].status_code, header=header, smhash=smhash, redirect=redirect, content='out-of-scope, 3xx-redirect-response')
+                # if not is_redirect_in_scope(location=old_headers['Location']):
+                if not ("//"+domain in old_headers['Location'] or "//www"+domain in old_headers['Location']):
+                    return Page(domain=domain, status=request.history[0].status_code, header=header, smhash=smhash, redirect=redirect, ssl=ssl, content='out-of-scope, 3xx-redirect-response')
 
         if(request.status_code >= 200 and request.status_code < 300):
             if(get_source):
                 with open(f"{output_path}{domain.replace('/', '').replace(':', '')}.txt", 'w') as file:
                     file.writelines(request.content.decode('utf-8').lower())
-            return Page(domain=domain, status=request.status_code, header=header, smhash=smhash, redirect=redirect, content=request.content.decode().lower())
+            return Page(domain=domain, status=request.status_code, header=header, smhash=smhash, redirect=redirect, ssl=ssl, content=request.content.decode().lower(),)
         elif(request.status_code >= 300 and request.status_code < 400):
-            return Page(domain=domain, status=request.status_code, header=header, smhash=smhash, redirect=redirect, content='3xx-redirect-response')
+            return Page(domain=domain, status=request.status_code, header=header, smhash=smhash, redirect=redirect, ssl=ssl, content='3xx-redirect-response')
         elif(request.status_code == 401):
-            return Page(domain=domain, status=request.status_code, header=header, smhash=smhash, redirect=redirect, content='login, 4xx-client-response')
+            return Page(domain=domain, status=request.status_code, header=header, smhash=smhash, redirect=redirect, ssl=ssl, content='login, 4xx-client-response')
         elif(request.status_code == 402):
-            return Page(domain=domain, status=request.status_code, header=header, smhash=smhash, redirect=redirect, content='payment, 4xx-client-response')
+            return Page(domain=domain, status=request.status_code, header=header, smhash=smhash, redirect=redirect, ssl=ssl, content='payment, 4xx-client-response')
         elif(request.status_code == 404):
-            return Page(domain=domain, status=request.status_code, header=header, smhash=smhash, redirect=redirect, content='404-page-not-found')
+            return Page(domain=domain, status=request.status_code, header=header, smhash=smhash, redirect=redirect, ssl=ssl, content='404-page-not-found')
         elif(request.status_code >= 400 and request.status_code < 500):
-            return Page(domain=domain, status=request.status_code, header=header, smhash=smhash, redirect=redirect, content='4xx-client-response')
+            return Page(domain=domain, status=request.status_code, header=header, smhash=smhash, redirect=redirect, ssl=ssl, content='4xx-client-response')
         elif(request.status_code >= 500):
-            return Page(domain=domain, status=request.status_code, header=header, smhash=smhash, redirect=redirect, content='5xx-server-response')
+            return Page(domain=domain, status=request.status_code, header=header, smhash=smhash, redirect=redirect, ssl=ssl, content='5xx-server-response')
         else:
             print(f"[x] {domain} returned status code: {request.status_code}")
-            return Page(domain=domain, status=request.status_code, header=header, smhash=smhash, redirect=redirect, content='unhandled-status-code')
+            return Page(domain=domain, status=request.status_code, header=header, smhash=smhash, redirect=redirect, ssl=ssl, content='unhandled-status-code')
 
     except Exception as e:
         print(f"[x] {domain} returned error: {e}")
-        return Page(domain=domain, status=-1, header=header, smhash=smhash, redirect=redirect, content='exception-thrown')
+        return Page(domain=domain, status=-1, header=header, smhash=smhash, redirect=redirect, ssl=ssl, content='exception-thrown')
 
 
 def get_sitemap_hash(*, domain: str) -> str:
@@ -149,18 +163,23 @@ def export_csv(*, output_path: str, collections: list):
                             quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
         writer.writerow(['Domain', 'A-records', 'Server', 'Title',
-                         'Status', 'Redirected To', 'Bucket', 'Matched On', 'Is Duplicate'])
+                         'Status', 'Redirected To', 'Bucket', 'Matched On', 'Valid SSL'])
         for collection in collections:
             for page in collection.pages:
                 winner, _ = page.get_top_matched()
-                if(collection.name == winner.name):
-                    # Handle AWS slightly differently due to IP matching rather than strings
-                    if(collection.name == "AWS Collection"):
-                        writer.writerow([page.domain, ", ".join([str(ip) for ip in page.ip]), page.header, page.title, page.status, page.redirect['location'],
-                                         collection.name, ", ".join(collection.get_match_for(page=page)), page.is_dupe])
-                    else:
-                        writer.writerow([page.domain, ", ".join([str(ip) for ip in page.ip]), page.header, page.title, page.status, page.redirect['location'],
-                                         collection.name, ", ".join([matched for matched in page.matched[collection.name] if matched in collection.keywords]), page.is_dupe])
+
+                if winner:
+                    if(collection.name == winner.name):
+                        # Handle AWS slightly differently due to IP matching rather than strings
+                        if(collection.name == "AWS Collection"):
+                            writer.writerow([page.domain, ", ".join([str(ip) for ip in page.ip]), page.header, page.title, page.status, page.redirect['location'],
+                                             collection.name, ", ".join(collection.get_match_for(page=page)), page.ssl['valid']])
+                        else:
+                            writer.writerow([page.domain, ", ".join([str(ip) for ip in page.ip]), page.header, page.title, page.status, page.redirect['location'],
+                                             collection.name, ", ".join([matched for matched in page.matched[collection] if matched in collection.keywords]), page.ssl['valid']])
+                else:
+                    writer.writerow([page.domain, ", ".join([str(ip) for ip in page.ip]), page.header, page.title,
+                                     page.status, page.redirect['location'], "NOMATCH-DEBUG", "-", page.ssl['valid']])
 
 
 def process(*, input_path: str, collections: list, get_source: bool = True, output_path: str = '/tmp/') -> list:
@@ -183,7 +202,7 @@ def process(*, input_path: str, collections: list, get_source: bool = True, outp
         for page in pages:
             collection.validate(page=page)
             # TODO: Dedupe needs extra sanity checking
-            collection.dedupe(page=page)
+            # collection.dedupe(page=page)
 
     if get_source:
         print(f"[*] Page Sources: {output_path}")
