@@ -1,9 +1,10 @@
 #!/bin/python3
+# pylint: disable=unused-wildcard-import, method-hidden
+
 from bucket.utils import get_aws_ranges, process, export_csv, export_json
 from bucket.collections import *
 
 if __name__ == '__main__':
-
     collections: [Collection] = list()
 
     collections.append(NoneCollection())
