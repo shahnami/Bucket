@@ -18,7 +18,7 @@ class Collection:
                 "check": self.check,
                 "keywords": self.keywords,
                 "page_count": len(self.pages),
-                "pages": [{"domain": page.domain, "ip": [str(ip) for ip in page.ip], "matched_on": [matched for matched in page.matched[self.name] if matched in self.keywords], "status": page.status, "server": page.header, "redirect": page.redirect, "title": page.title, "is_dupe": page.is_dupe} for page in self.pages]
+                "pages": [{"domain": page.domain, "ip": [str(ip) for ip in page.ip], "matched_on": [matched for matched in page.matched[self] if matched in self.keywords], "status": page.status, "server": page.header, "redirect": page.redirect, "title": page.title} for page in self.pages]
             }
         }
 

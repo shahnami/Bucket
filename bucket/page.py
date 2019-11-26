@@ -18,7 +18,7 @@ class Page:
         self.sitemap_hash: str = smhash
         self.matched: dict = dict()
         self.ip: [IPAddress] = list()
-        self.ssl: dict = ssl
+        self.ssl: dict = ssl            # {"ssl": bool, "valid": bool}
         self.fetch_title()
 
     def fetch_title(self):

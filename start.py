@@ -1,8 +1,9 @@
 #!/bin/python3
 # pylint: disable=unused-wildcard-import, method-hidden
 
-from bucket.utils import get_aws_ranges, process, export_csv, export_json
+from bucket.utils import get_aws_ranges, process
 from bucket.collections import *
+from bucket.exporters import *
 
 if __name__ == '__main__':
     collections: [Collection] = list()
@@ -14,7 +15,18 @@ if __name__ == '__main__':
     collections.append(VPNCollection())
     collections.append(AuthCollection())
 
-    _, pages = process(input_path='targets.txt', collections=collections,
-                       get_source=False, output_path='./output/sources/')
+    processed_collections, pages = process(input_path='targets.txt', collections=collections,
+                                           get_source=False, output_path='./output/sources/')
 
-    export_csv(output_path='./output/output.csv', pages=pages)
+    try:
+        # Create your own exporters in ./exporters/
+        csv_exporter = CSVExporter(output='./output/output.csv')
+        csv_exporter.export(pages=pages)
+
+        json_exporter = JSONExporter(output='./output/output.json')
+        json_exporter.export(collections=processed_collections)
+
+    except NotImplementedError as e:
+        print(f"[x] {e}")
+
+    # export_csv(output_path='./output/output.csv', pages=pages)
