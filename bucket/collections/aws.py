@@ -8,26 +8,24 @@ class AWSCollection(Collection):
 
     def __init__(self):
         self.name = 'AWS Collection'
-        self.pages = list()
+        self.pages = dict()
         self.check = {'domain': False, 'content': False, 'status': False}
         self.keywords = list()
-        self.multiplier = 1
+        self.weight = 1
 
     def __dict__(self) -> dict:
         return {
             f"{self.name}": {
                 "check": self.check,
                 "page_count": len(self.pages),
-                "pages": [{"domain": page.domain, "ip": [str(ip) for ip in page.ip], "matched_on": self.get_match_for(page=page)} for page in self.pages]
+                "pages": [{"domain": page['page'].domain, "ip": [str(ip) for ip in page['page'].ip], "matched_on": self.get_match_for(partial_page=page)} for domain, page in self.pages.items()]
             }
         }
 
-    def get_match_for(self, *, page: Page) -> list:
+    def get_match_for(self, *, partial_page: dict) -> list:
         matches = list()
-        if self.name not in page.matched:
-            page.matched[self.name] = list()
 
-        for match in page.matched[self.name]:
+        for match in partial_page['matched']:
             for keyword in self.keywords:
                 try:
                     if IPAddress(match) in keyword:
@@ -41,9 +39,12 @@ class AWSCollection(Collection):
         self.keywords = ranges
 
     def validate(self, *, page: Page):
+        entry: dict = {"page": page, "matched": list()}
+
         for keyword in self.keywords:
             for ip in page.ip:
                 if ip in keyword:
-                    page.add_match(collection=self, keyword=ip.format())
-                    self.pages.append(page)
-                    self.pages = list(set(self.pages))
+                    entry['matched'].append(ip.format())
+                    entry['matched'] = list(set(entry['matched']))
+        if entry['matched']:
+            self.pages[page.domain] = entry

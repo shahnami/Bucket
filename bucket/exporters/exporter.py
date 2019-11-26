@@ -1,22 +1,13 @@
+from ..page import Page
+from ..collections import Collection
+
+
 class Exporter:
     """ Abstract Exporter Class """
 
-    def __init__(self, *, output: str = './report.out'):
-        self.output = output
+    def __init__(self, *, output_path: str = './report.out'):
+        self.output_path = output_path
 
-    def export(self, *, pages: list = [], collections: list = []):
-        if pages and not collections:
-            self.export_pages(pages)
-        elif collections and not pages:
-            self.export_collections(collections)
-        else:
-            raise NotImplementedError(
-                "Export functionality for both collections and pages simultaniously has not been implemented yet.")
-
-    def export_pages(self, pages: list):
+    def export(self, *, pages: [Page] = list(), collections: [Collection] = list()):
         raise NotImplementedError(
-            "Define the export_pages function within your custom export class.")
-
-    def export_collections(self, collections: list):
-        raise NotImplementedError(
-            "Define the export_collections function within your custom export class.")
+            f"The export functionality has not been implemented for {self.__class__.__name__}.")

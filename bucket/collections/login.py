@@ -6,8 +6,8 @@ class LoginCollection(Collection):
 
     def __init__(self):
         self.name = 'Login Collection'
-        self.pages = list()
+        self.pages = dict()
         self.check = {'domain': True, 'content': True, 'status': False}
         self.keywords = ['logon', 'signup', 'signin', 'login',
                          'register', 'auth', 'passw', 'username', 'email']
-        self.multiplier = 1
+        self.weight = 1

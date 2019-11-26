@@ -6,8 +6,8 @@ class SocialCollection(Collection):
 
     def __init__(self):
         self.name = 'Social Collection'
-        self.pages = list()
+        self.pages = dict()
         self.check = {'domain': True, 'content': True, 'status': False}
         self.keywords = ['facebook', 'twitter',
                          'linkedin', 'reddit', 'instagram']
-        self.multiplier = 1
+        self.weight = 1

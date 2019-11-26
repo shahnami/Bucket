@@ -11,8 +11,8 @@ class ClientCollection(Collection):
 
     def __init__(self):
         self.name = 'Client Collection'
-        self.pages = list()
+        self.pages = dict()
         self.check = {'domain': True, 'content': True, 'status': False}
         self.keywords = ['input', 'form', 'contact', 'logon', 'signup', 'signin', 'login',
                          'register', 'auth', 'passw', 'username', 'email', 'online-banking', 'dashboard', 'secure.']
-        self.multiplier = 1
+        self.weight = 1

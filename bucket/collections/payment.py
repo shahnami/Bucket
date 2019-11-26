@@ -6,7 +6,7 @@ class PaymentCollection(Collection):
 
     def __init__(self):
         self.name = 'Payment Collection'
-        self.pages = list()
+        self.pages = dict()
         self.check = {'domain': True, 'content': True, 'status': False}
         self.keywords = ['payment', 'banking', 'credit', 'debit']
-        self.multiplier = 1
+        self.weight = 1

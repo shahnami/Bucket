@@ -10,8 +10,8 @@ class StagingCollection(Collection):
 
     def __init__(self):
         self.name = 'Staging Collection'
-        self.pages = list()
+        self.pages = dict()
         self.check = {'domain': True, 'content': False, 'status': False}
         self.keywords = ['staging', 'test', 'testing', 'uat',
                          'stage', 'dev', 'sit', 'integration', 'env']
-        self.multiplier = 11
+        self.weight = 104

@@ -6,7 +6,7 @@ class EnvironmentCollection(Collection):
 
     def __init__(self):
         self.name = 'Environment Collection'
-        self.pages = list()
+        self.pages = dict()
         self.check = {'domain': True, 'content': False, 'status': False}
         self.keywords = ['api', 'uat', 'dev', 'sit', 'test', 'prod', 'staging']
-        self.multiplier = 1
+        self.weight = 1

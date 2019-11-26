@@ -8,9 +8,13 @@ from bucket.exporters import *
 if __name__ == '__main__':
     collections: [Collection] = list()
 
+    aws_collection = AWSCollection()
+    aws_collection.set_keywords(ranges=get_aws_ranges())
+    collections.append(aws_collection)
+
+    collections.append(ClientCollection())
     collections.append(NoneCollection())
     collections.append(StagingCollection())
-    collections.append(ClientCollection())
     collections.append(BrochureCollection())
     collections.append(VPNCollection())
     collections.append(AuthCollection())
@@ -20,13 +24,11 @@ if __name__ == '__main__':
 
     try:
         # Create your own exporters in ./exporters/
-        csv_exporter = CSVExporter(output='./output/output.csv')
-        csv_exporter.export(pages=pages)
+        csv_exporter = CSVExporter(output_path='./output/output.csv')
+        csv_exporter.export(pages=pages, collections=processed_collections)
 
-        json_exporter = JSONExporter(output='./output/output.json')
+        json_exporter = JSONExporter(output_path='./output/output.json')
         json_exporter.export(collections=processed_collections)
 
     except NotImplementedError as e:
         print(f"[x] {e}")
-
-    # export_csv(output_path='./output/output.csv', pages=pages)

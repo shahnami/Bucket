@@ -7,18 +7,19 @@ class BrochureCollection(Collection):
 
     def __init__(self):
         self.name = 'Brochure Collection'
-        self.pages = list()
+        self.pages = dict()
         self.check = {'domain': True, 'content': True, 'status': False}
         self.keywords = ['input', 'form', 'contact', 'logon', 'signup', 'signin', 'login',
                          'register', 'auth', 'passw', 'username', 'email', 'vpn', 'ssl']
-        self.multiplier = 1
+        self.weight = 1
 
     def validate(self, *, page: Page):
+        entry: dict = {"page": page, "matched": list()}
+
         contains_keywords = False
         for keyword in self.keywords:
             if keyword in page.check_in(domain=self.check['domain'], content=self.check['content'], status=self.check['status']):
                 contains_keywords = True
 
         if not contains_keywords:
-            self.pages.append(page)
-            self.pages = list(set(self.pages))
+            self.pages[page.domain] = entry

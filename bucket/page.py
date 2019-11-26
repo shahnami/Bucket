@@ -1,11 +1,10 @@
 from netaddr import IPAddress, IPNetwork
 from bs4 import BeautifulSoup
 import dns.resolver
-# from .collections import Collection
 
 
 class Page:
-    """ DOM element of a web apge """
+    """ Web Page Class """
 
     def __init__(self, *, domain: str, status: int, redirect: dict = dict(), header: str = '-', content: str = 'exception-thrown', smhash: str = '-', ssl: dict = {"ssl": False, "valid": False}):
         self.domain: str = domain
@@ -16,7 +15,6 @@ class Page:
         self.title: str = '-'
         self.is_dupe: bool = False
         self.sitemap_hash: str = smhash
-        self.matched: dict = dict()
         self.ip: [IPAddress] = list()
         self.ssl: dict = ssl            # {"ssl": bool, "valid": bool}
         self.fetch_title()
@@ -33,14 +31,6 @@ class Page:
 
     def set_dupe(self, *, is_dupe: bool):
         self.is_dupe = is_dupe
-
-    #  -> Cirtcular dependency with Collection type
-    def add_match(self, *, collection: object, keyword: str):
-        if collection not in self.matched:
-            self.matched[collection] = list()
-
-        if keyword not in self.matched[collection]:
-            self.matched[collection].append(keyword)
 
     def check_in(self, *, domain: bool, content: bool, status: bool) -> str:
         if(domain and content and status):
@@ -74,15 +64,6 @@ class Page:
             # the resolver is not answering so dns resolutions remain empty
             pass
         self.ip = dns_records
-
-    def get_top_matched(self) -> (object, int):
-        high_score: int = 0
-        winner: object = None
-        for key, value in self.matched.items():
-            if ((len(value) - 1) * key.multiplier) > high_score:
-                high_score = (len(value) - 1) * key.multiplier
-                winner = key
-        return winner, high_score
 
     def __repr__(self):
         return f"{self.domain}"
