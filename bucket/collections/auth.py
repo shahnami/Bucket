@@ -11,8 +11,8 @@ class AuthCollection(Collection):
     """
 
     def __init__(self):
+        Collection.__init__(self)
         self.name = 'Auth Collection'
-        self.pages = dict()
         self.check = {'domain': False, 'content': False, 'status': True}
         self.keywords = ['401']
-        self.weight = 102
+        self.set_weight()

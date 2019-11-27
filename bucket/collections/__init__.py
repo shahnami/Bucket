@@ -12,3 +12,4 @@ from .staging import StagingCollection
 from .client import ClientCollection
 from .brochure import BrochureCollection
 from .auth import AuthCollection
+from .owa import OWACollection

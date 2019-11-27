@@ -6,12 +6,12 @@ class BrochureCollection(Collection):
     """ Collection class """
 
     def __init__(self):
+        Collection.__init__(self)
         self.name = 'Brochure Collection'
-        self.pages = dict()
         self.check = {'domain': True, 'content': True, 'status': False}
         self.keywords = ['input', 'form', 'contact', 'logon', 'signup', 'signin', 'login',
                          'register', 'auth', 'passw', 'username', 'email', 'vpn', 'ssl']
-        self.weight = 1
+        self.set_weight()
 
     def validate(self, *, page: Page):
         entry: dict = {"page": page, "matched": list()}

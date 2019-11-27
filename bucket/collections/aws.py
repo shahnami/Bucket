@@ -7,11 +7,10 @@ class AWSCollection(Collection):
     """ Collection class """
 
     def __init__(self):
+        Collection.__init__(self)
         self.name = 'AWS Collection'
-        self.pages = dict()
         self.check = {'domain': False, 'content': False, 'status': False}
-        self.keywords = list()
-        self.weight = 1
+        self.set_weight()
 
     def __dict__(self) -> dict:
         return {

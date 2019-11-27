@@ -9,8 +9,8 @@ class VPNCollection(Collection):
     """
 
     def __init__(self):
+        Collection.__init__(self)
         self.name = 'VPN Collection'
-        self.pages = dict()
         self.check = {'domain': True, 'content': True, 'status': False}
         self.keywords = ['cscoe', 'netscaler', 'citrix gateway']
-        self.weight = 105
+        self.set_weight()

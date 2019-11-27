@@ -1,5 +1,6 @@
 import json
 import operator
+from ..config import WEIGHTS
 from ..page import Page
 
 
@@ -10,9 +11,15 @@ class Collection:
         self.name: str = 'Abstract Collection'
         self.check: dict = {'domain': True, 'content': True, 'status': False}
         self.keywords: [any] = list()
-        # pages = {"domain": {"page": Page, "matched": list}, ...}
+        #{"www.example.com": str: {"page": Page, "matched": list}, ...}
         self.pages: dict = dict()
         self.weight: int = 1
+
+    def set_weight(self):
+        if(self.name in WEIGHTS):
+            self.weight = WEIGHTS[self.name]
+        else:
+            self.weight = 1
 
     def __dict__(self) -> dict:
         return {
@@ -27,9 +34,9 @@ class Collection:
     def dedupe(self, *, page: Page):
         # TODO: Use Levenshtein Distance on page.content instead
         if not page.sitemap_hash == '-':
-            for p in self.pages:
-                if not p['page'].domain == page.domain:
-                    if page.sitemap_hash == p['page'].sitemap_hash and page.header == p['page'].header:
+            for key, value in self.pages.items():
+                if value['page'].domain is not page.domain:
+                    if page.sitemap_hash == value['page'].sitemap_hash and page.header == value['page'].header:
                         page.set_dupe(is_dupe=True)
 
     def validate(self, *, page: Page):
@@ -43,19 +50,20 @@ class Collection:
         if entry['matched']:
             self.pages[page.domain] = entry
 
+    def get_page(self, *, page: Page) -> dict:
+        if page.domain in self.pages:
+            return self.pages[page.domain]
+        return None
+
     @classmethod
     def get_highest_score(cls, *, page: Page, collections: list):
         winner: Collection = None
         stats: dict = dict()
 
         for collection in collections:
-            if page.domain in collection.pages:
-                for _, value in collection.pages.items():
-                    if page == value['page']:
-                        stats[collection] = len(
-                            value['matched']) * collection.weight
-
-                if(stats):
-                    winner = max(stats, key=stats.get)
-
+            collection_page = collection.get_page(page=page)
+            if collection_page:
+                stats[collection] = collection.weight <= 1 and len(collection_page['matched']) or collection.weight
+            if(stats):
+                winner = max(stats, key=stats.get)
         return winner
