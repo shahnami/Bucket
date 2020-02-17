@@ -141,17 +141,28 @@ def get_aws_ranges(*, url: str = AWS_URL) -> list:
     return aws
 
 
-def parse_domain(*, domain: str, get_source: bool, output_path: str) -> Page:
+def parse_domain(*, domain: str, get_source: bool, resolve_dns: bool, is_recursive: bool, output_path: str) -> Page:
     page = fetch_dom(domain=domain, get_source=get_source,
                      output_path=output_path)
 
-    if(page):
-        page.set_domain_dns()
+    all_related_pages: [Page] = list()
+    if is_recursive:
+        for link in page.get_links():
+            new_page = fetch_dom(
+                domain=link, get_source=get_source, output_path=output_path)
+            if new_page:
+                if resolve_dns:
+                    new_page.set_domain_dns()
+                all_related_pages.append(new_page)
+    page.related_pages = all_related_pages
+    if page:
+        if resolve_dns:
+            page.set_domain_dns()
         return page
     return None
 
 
-def process(*, input_path: str, collections: list, get_source: bool = True, output_path: str = '/tmp/') -> (list, list):
+def process(*, input_path: str, collections: list, get_source: bool = True, resolve_dns: bool = True, is_recursive: bool = True, output_path: str = '/tmp/') -> (list, list):
     print(f"[-] Reading {input_path}")
 
     if get_source:
@@ -165,7 +176,7 @@ def process(*, input_path: str, collections: list, get_source: bool = True, outp
 
     with ThreadPoolExecutor(max_workers=50) as exc:
         pages = list(exc.map(lambda domain: parse_domain(
-            domain=domain, get_source=get_source, output_path=output_path), domains))
+            domain=domain, get_source=get_source, resolve_dns=resolve_dns, is_recursive=is_recursive, output_path=output_path), domains))
 
     for collection in collections:
         for page in pages:

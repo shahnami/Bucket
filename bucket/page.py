@@ -17,7 +17,28 @@ class Page:
         self.sitemap_hash: str = smhash
         self.ip: [IPAddress] = list()
         self.ssl: dict = ssl            # {"ssl": bool, "valid": bool}
+        self.related_pages: [Page] = list()
         self.fetch_title()
+
+    def sanitize_url(self, *,  url: str) -> str:
+        if 'javascript:' in url.lower():
+            return None
+        elif url.startswith(self.domain) or url.startswith('http') or url.startswith('www.'):
+            return url
+        elif url.startswith('/') or len(url) == 1:
+            return f"{self.domain}{url}"
+        else:
+            return f"{self.domain}/{url}"
+
+    def get_links(self) -> list:
+        soup = BeautifulSoup(self.content, 'html.parser')
+
+        related_links: list = list()
+        for link in soup.find_all('a', href=True):
+            sanitized = self.sanitize_url(url=link['href'])
+            if sanitized:
+                related_links.append(sanitized)
+        return related_links
 
     def fetch_title(self):
         try:
@@ -62,6 +83,10 @@ class Page:
             pass
         except dns.resolver.NoAnswer:
             # the resolver is not answering so dns resolutions remain empty
+            pass
+        except dns.resolver.NoNameservers:
+            pass
+        except dns.resolver.Timeout:
             pass
         self.ip = dns_records
 

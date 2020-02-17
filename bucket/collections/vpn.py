@@ -12,5 +12,5 @@ class VPNCollection(Collection):
         Collection.__init__(self)
         self.name = 'VPN Collection'
         self.check = {'domain': True, 'content': True, 'status': False}
-        self.keywords = ['cscoe', 'netscaler', 'citrix gateway']
+        self.keywords = ['cscoe', 'netscaler', 'citrix gateway', 'pulse', 'vpn']
         self.set_weight()
