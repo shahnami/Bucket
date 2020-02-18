@@ -2,6 +2,8 @@ from netaddr import IPAddress, IPNetwork
 from bs4 import BeautifulSoup
 import dns.resolver
 
+from .utils import fetch_dom
+
 
 class Page:
     """ Web Page Class """
@@ -39,6 +41,16 @@ class Page:
             if sanitized:
                 related_links.append(sanitized)
         return related_links
+
+    def fetch_related_pages(self, *, resolve_dns: bool, domains: list, get_source: bool, output_path: str):
+        for link in self.get_links():
+            page_dom = fetch_dom(domains=domains, domain=link,
+                                 get_source=get_source, output_path=output_path)
+            page = Page.page_from(page=page_dom)
+            if page:
+                if resolve_dns:
+                    page.set_domain_dns()
+                self.related_pages.append(page)
 
     def fetch_title(self):
         try:
@@ -95,3 +107,7 @@ class Page:
 
     def __str__(self):
         return f"{self.domain},{self.content}"
+
+    @classmethod
+    def page_from(cls, *, page: dict):
+        return Page(domain=page['domain'], status=page['status'], header=page['header'], smhash=page['smhash'], redirect=page['redirect'], ssl=page['ssl'], content=page['content'])

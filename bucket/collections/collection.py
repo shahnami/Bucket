@@ -11,7 +11,7 @@ class Collection:
         self.name: str = 'Abstract Collection'
         self.check: dict = {'domain': True, 'content': True, 'status': False}
         self.keywords: [any] = list()
-        #{"www.example.com": str: {"page": Page, "matched": list}, ...}
+        # {"www.example.com": str: {"page": Page, "matched": list}, ...}
         self.pages: dict = dict()
         self.weight: int = 1
 
@@ -59,11 +59,11 @@ class Collection:
     def get_highest_score(cls, *, page: Page, collections: list):
         winner: Collection = None
         stats: dict = dict()
-
         for collection in collections:
             collection_page = collection.get_page(page=page)
             if collection_page:
-                stats[collection] = collection.weight <= 1 and len(collection_page['matched']) or collection.weight
+                stats[collection] = collection.weight <= 1 and len(
+                    collection_page['matched']) or collection.weight
             if(stats):
                 winner = max(stats, key=stats.get)
         return winner

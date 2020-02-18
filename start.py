@@ -3,9 +3,10 @@
 
 import itertools
 
-from bucket.utils import get_aws_ranges, process
+from bucket.utils import get_aws_ranges
 from bucket.collections import *
 from bucket.exporters import *
+from bucket.bucketer import *
 
 
 if __name__ == '__main__':
@@ -23,8 +24,20 @@ if __name__ == '__main__':
     collections.append(AuthCollection())
     collections.append(EnvironmentCollection())
 
-    processed_collections, processed_pages = process(input_path='targets.txt', collections=collections,
-                                                     get_source=False, resolve_dns=False, is_recursive=True, output_path='./output/sources/')
+    configuration: dict = {
+        "input_path": "targets.txt",
+        "collections": collections,
+        "get_source": False,
+        "resolve_dns": False,
+        "is_recursive": True,
+        "output_path": "./output/sources/"
+    }
+
+    bucketer: Bucketer = Bucketer(configuration=configuration)
+    bucketer.run()
+
+    processed_collections = bucketer.get_collections()
+    processed_pages = bucketer.get_pages()
 
     try:
         # Create your own exporters in ./exporters/
