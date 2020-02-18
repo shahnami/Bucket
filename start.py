@@ -28,8 +28,8 @@ if __name__ == '__main__':
         "input_path": "targets.txt",
         "collections": collections,
         "get_source": False,
-        "resolve_dns": False,
-        "is_recursive": True,
+        "resolve_dns": True,
+        "is_recursive": False,
         "output_path": "./output/sources/"
     }
 

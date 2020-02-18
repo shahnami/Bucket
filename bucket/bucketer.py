@@ -10,7 +10,7 @@ class Bucketer:
                                                  "collections": [],
                                                  "get_source": True,
                                                  "resolve_dns": True,
-                                                 "is_recursive": True,
+                                                 "is_recursive": False,
                                                  "output_path": "/tmp/"}):
         self._configuration = configuration
         self._domains: list = list()

@@ -40,6 +40,17 @@ class Page:
             sanitized = self.sanitize_url(url=link['href'])
             if sanitized:
                 related_links.append(sanitized)
+
+        for link in soup.find_all('img', src=True):
+            sanitized = self.sanitize_url(url=link['src'])
+            if sanitized:
+                related_links.append(sanitized)
+
+        for link in soup.find_all('script', src=True):
+            sanitized = self.sanitize_url(url=link['src'])
+            if sanitized:
+                related_links.append(sanitized)
+
         return related_links
 
     def fetch_related_pages(self, *, resolve_dns: bool, domains: list, get_source: bool, output_path: str):
@@ -99,6 +110,8 @@ class Page:
         except dns.resolver.NoNameservers:
             pass
         except dns.resolver.Timeout:
+            pass
+        except:
             pass
         self.ip = dns_records
 
