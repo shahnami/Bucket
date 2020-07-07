@@ -9,4 +9,5 @@ WEIGHTS: dict = {
     "Auth Collection": 102,
     "AWS Collection": 101,
     "Client Collection": 100,
+    "DNS Collection": 100,
 }

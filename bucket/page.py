@@ -18,6 +18,7 @@ class Page:
         self.is_dupe: bool = False
         self.sitemap_hash: str = smhash
         self.ip: [IPAddress] = list()
+        self.dns_records: dict = dict()
         self.ssl: dict = ssl            # {"ssl": bool, "valid": bool}
         self.related_pages: [Page] = list()
         self.fetch_title()
@@ -93,6 +94,19 @@ class Page:
             return f"{self.status}".lower()
         else:
             return f"-"
+
+    def set_dns_txt_records(self) -> list:
+        """ Fetch DNS TXT records for domain"""
+
+        txt_records = list()
+
+        try:
+            for record in dns.resolver.query(self.domain, "TXT").response.answer[0]:
+                txt_records.append(str(record))
+        except:
+            self.dns_records['txt'] = []
+
+        self.dns_records['txt'] = txt_records
 
     def set_domain_dns(self) -> [IPAddress]:
         """Get the DNS record, if any, for the given domain."""

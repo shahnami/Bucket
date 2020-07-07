@@ -27,18 +27,18 @@ class Bucketer:
                 ), get_source=self._configuration['get_source'], output_path=self._configuration['output_path'])
             if self._configuration['resolve_dns']:
                 page.set_domain_dns()
+                page.set_dns_txt_records()
             return page
         return None
 
     def run(self):
         print(f"[-] Reading {self._configuration['input_path']}")
+        with open(self._configuration['input_path']) as targets:
+            domains = [target.strip() for target in targets.readlines()]
 
         if self._configuration['get_source']:
             print(
                 f"[-] Downloading Page Source in: {self._configuration['output_path']}")
-
-        with open(self._configuration['input_path']) as targets:
-            domains = [target.strip() for target in targets.readlines()]
 
         with ThreadPoolExecutor(max_workers=50) as exc:
             pages = list(
@@ -51,7 +51,8 @@ class Bucketer:
                 # collection.dedupe(page=page)
 
         if self._configuration['get_source']:
-            print(f"[*] Page Sources: {self._configuration['output_path']}")
+            print(
+                f"[*] Page Sources: {self._configuration['output_path']}")
 
         self.set_domains(domains=domains)
         self.set_pages(pages=pages)

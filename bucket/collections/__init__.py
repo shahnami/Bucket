@@ -13,3 +13,4 @@ from .client import ClientCollection
 from .brochure import BrochureCollection
 from .auth import AuthCollection
 from .owa import OWACollection
+from .dnstxt import DNSCollection
