@@ -4,7 +4,10 @@ from ..page import Page
 
 
 class AWSCollection(Collection):
-    """ Collection class """
+    """ AWS Collection class 
+
+        Sites for which the A-records match the AWS public IP range.
+    """
 
     def __init__(self):
         Collection.__init__(self)

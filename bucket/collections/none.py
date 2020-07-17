@@ -3,7 +3,7 @@ from .collection import Collection
 
 class NoneCollection(Collection):
     """ 
-        Misc Collection class
+        None Collection class
 
         These are mostly sites which return page not found, or redirect to other domains other than themselves. 
         There are a few sites which ‘reset connection’ when we try and access them (status code -1) suggesting 

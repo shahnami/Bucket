@@ -5,7 +5,7 @@ class DNSCollection(Collection):
     """ 
         DNS TXT Collection Class
 
-        Gather technologies based on TXT records.
+        Sites which match specific technologies common to be found in DNS TXT records.
     """
 
     def __init__(self):

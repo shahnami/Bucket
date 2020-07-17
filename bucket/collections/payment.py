@@ -2,7 +2,10 @@ from .collection import Collection
 
 
 class PaymentCollection(Collection):
-    """ Collection class """
+    """ Payment Collection class 
+
+        Sites which contain payment elements.
+    """
 
     def __init__(self):
         Collection.__init__(self)

@@ -2,7 +2,10 @@ from .collection import Collection
 
 
 class ProductionCollection(Collection):
-    """ Collection class """
+    """ Production Collection class 
+
+        Sites which match common environment strings used within a production environment.
+    """
 
     def __init__(self):
         Collection.__init__(self)

@@ -2,7 +2,10 @@ from .collection import Collection
 
 
 class LoginCollection(Collection):
-    """ Collection class """
+    """ Login Collection class 
+
+        Sites which contain common login keywords.
+    """
 
     def __init__(self):
         Collection.__init__(self)

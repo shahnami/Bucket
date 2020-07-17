@@ -3,7 +3,10 @@ from ..page import Page
 
 
 class BrochureCollection(Collection):
-    """ Collection class """
+    """ Brochure Collection class 
+
+        Sites which contain static content, brochureware.
+    """
 
     def __init__(self):
         Collection.__init__(self)

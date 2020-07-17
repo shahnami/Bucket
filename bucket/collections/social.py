@@ -2,7 +2,10 @@ from .collection import Collection
 
 
 class SocialCollection(Collection):
-    """ Collection class """
+    """ Social Collection class 
+
+        Sites that contain elements related to social platforms.
+    """
 
     def __init__(self):
         Collection.__init__(self)

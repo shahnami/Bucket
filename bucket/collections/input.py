@@ -2,7 +2,10 @@ from .collection import Collection
 
 
 class InputCollection(Collection):
-    """ Collection class """
+    """ Input Collection class 
+
+        Sites which contain elements commonly used for search, registration or login functionalities.
+    """
 
     def __init__(self):
         Collection.__init__(self)

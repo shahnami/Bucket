@@ -2,7 +2,10 @@ from .collection import Collection
 
 
 class EnvironmentCollection(Collection):
-    """ Collection class """
+    """ Environment Collection class 
+
+        Sites which match common environment strings within the domain name.
+    """
 
     def __init__(self):
         Collection.__init__(self)

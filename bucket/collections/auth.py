@@ -3,7 +3,7 @@ from .collection import Collection
 
 class AuthCollection(Collection):
     """ 
-        Basic Authentication Collection class
+        Authentication Collection class
 
         Requires username/password via Basic Auth – typical of non-production assets.
         Note as testing is unauthenticated, testing of the application would not be possible 
