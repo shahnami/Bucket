@@ -94,6 +94,7 @@ WEIGHTS: dict = {
 ```
 
 The higher the weight, the higher the priority.
+Weights should start with a priority of `100` to stay consistent.
 
 ## Notes
 
