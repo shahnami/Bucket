@@ -95,6 +95,7 @@ WEIGHTS: dict = {
 
 The higher the weight, the higher the priority.
 Weights should start with a priority of `100` to stay consistent.
+Collections without priorities _might_ get overwritten by higher priority collections.
 
 ## Notes
 
